@@ -26,6 +26,11 @@ var similarPictureTemplate = document.querySelector('#picture').content.querySel
 
 var fragment = document.createDocumentFragment();
 
+var bigPicture = document.querySelector('.big-picture');
+var bigPictureImg = bigPicture.querySelector('.big-picture__img');
+var commentsList = bigPicture.querySelector('.social__comments');
+var commentTemplate = commentsList.querySelector('.social__comment');
+
 // returns random number between min (incl) and max (exclud)
 var getRandomValue = function (min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -82,3 +87,43 @@ fillFragment(posts);
 
 similarPicturesElement.appendChild(fragment);
 
+// ПОЛНОЭКРАННЫЙ ПОКАЗ ФОТО
+bigPicture.classList.remove('hidden');
+
+var renderComment = function (comment) {
+  var commentElement = commentTemplate.cloneNode(true);
+
+  commentElement.querySelector('img').src = comment.avatar;
+  commentElement.querySelector('img').alt = comment.name;
+  commentElement.querySelector('.social__text').textContent = comment.message;
+
+  return commentElement;
+};
+
+var fillCommentFragment = function (array) {
+  var commentFragment = document.createDocumentFragment();
+  for (var k = 0; k < array.length; k++) {
+    commentFragment.appendChild(renderComment(array[k]));
+  }
+  return commentFragment;
+};
+
+var showComments = function (commentsFragment) {
+  commentsList.innerHTML = '';
+  commentsList.appendChild(commentsFragment);
+};
+
+var renderBigPicture = function (post) {
+  bigPictureImg.querySelector('img').src = post.url;
+  bigPicture.querySelector('.likes-count').textContent = post.likes;
+  bigPicture.querySelector('.comments-count').textContent = post.comments.length;
+  bigPicture.querySelector('.social__caption').textContent = post.description;
+
+  var newComment = fillCommentFragment(post.comments);
+  showComments(newComment);
+};
+renderBigPicture(posts[0]);
+
+document.querySelector('.social__comment-count').classList.add('hidden');
+document.querySelector('.comments-loader').classList.add('hidden');
+document.querySelector('body').classList.add('modal-open');
