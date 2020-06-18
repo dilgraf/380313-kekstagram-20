@@ -88,7 +88,7 @@ fillFragment(posts);
 similarPicturesElement.appendChild(fragment);
 
 // ПОЛНОЭКРАННЫЙ ПОКАЗ ФОТО
-bigPicture.classList.remove('hidden');
+// bigPicture.classList.remove('hidden');
 
 var renderComment = function (comment) {
   var commentElement = commentTemplate.cloneNode(true);
@@ -127,3 +127,145 @@ renderBigPicture(posts[0]);
 document.querySelector('.social__comment-count').classList.add('hidden');
 document.querySelector('.comments-loader').classList.add('hidden');
 document.querySelector('body').classList.add('modal-open');
+
+// ПОПАП С ЗАГРУЗКОЙ ФОТО И ЕГО РЕДАКТИРОВАНИЕМ
+var ESC_KEY = 27;
+var ENTER_KEY = 13;
+
+var uploadForm = document.querySelector('.img-upload__form');
+var uploadFile = uploadForm.querySelector('#upload-file');
+var photoForm = uploadForm.querySelector('.img-upload__overlay');
+var photoFormCancel = uploadForm.querySelector('.img-upload__cancel');
+
+var onFormEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEY) {
+    closeForm();
+  }
+};
+
+var openForm = function () {
+  photoForm.classList.remove('hidden');
+  document.addEventListener('keydown', onFormEscPress);
+};
+
+var closeForm = function () {
+  photoForm.classList.add('hidden');
+  // при закрытии формы сбрасываем значение поля выбора файла
+  uploadForm.reset();
+  document.removeEventListener('keydown', onFormEscPress);
+};
+
+uploadFile.addEventListener('change', function () {
+  openForm();
+});
+
+photoFormCancel.addEventListener('click', function () {
+  closeForm();
+});
+
+// ??????????
+photoFormCancel.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEY) {
+    closeForm();
+  }
+});
+
+// ЭФФЕКТЫ
+var effectLevel = uploadForm.querySelector('.effect-level');
+var effectLevelPin = effectLevel.querySelector('.effect-level__pin');
+
+var onEffectLevelPinMouseUp = function (upEvt) {
+  upEvt.preventDefault();
+  document.removeEventListener('mouseup', onEffectLevelPinMouseUp);
+};
+
+effectLevelPin.addEventListener('mouseup', onEffectLevelPinMouseUp);
+
+// МАСШТАБИРОВАНИЕ ИЗОБРАЖЕНИЯ
+var MIN_SCALE = 25;
+var MAX_SCALE = 100;
+var SCALE_STEP = 25;
+var scaleField = photoForm.querySelector('.img-upload__scale');
+var scaleDownBtn = scaleField.querySelector('.scale__control--smaller');
+var scaleUpBtn = scaleField.querySelector('.scale__control--bigger');
+var scaleValue = scaleField.querySelector('.scale__control--value');
+var imagePreview = photoForm.querySelector('.img-upload__preview');
+
+// - Значение должно изменяться с шагом в 25. Например, если значение поля установлено в 50%, после нажатия на «+»,
+// значение должно стать равным 75%. Максимальное значение — 100%, минимальное — 25%. Значение по умолчанию — 100%;
+// - При изменении значения поля .scale__control--value изображению внутри .img-upload__preview должен добавляться соответствующий стиль CSS,
+// который с помощью трансформации scale задаёт масштаб. Например, если в поле стоит значение 75%, то в стиле изображения должно быть написано transform: scale(0.75).
+var onScaleDownBtnClick = function () {
+  var scale = parseInt(scaleValue.value, 10);
+
+  var newScale = scale - SCALE_STEP >= MIN_SCALE ? newScale = scale - SCALE_STEP : MIN_SCALE;
+
+  scaleValue.value = newScale + '%';
+  imagePreview.style.transform = 'scale(' + newScale / 100 + ')';
+};
+
+var onScaleUpBtnClick = function () {
+  var scale = parseInt(scaleValue.value, 10);
+
+  var newScale = scale + SCALE_STEP <= MAX_SCALE ? newScale = scale + SCALE_STEP : MAX_SCALE;
+
+  scaleValue.value = newScale + '%';
+  imagePreview.style.transform = 'scale(' + newScale / 100 + ')';
+};
+
+// - При нажатии на кнопки .scale__control--smaller и .scale__control--bigger должно изменяться значение поля .scale__control--value;
+scaleDownBtn.addEventListener('click', onScaleDownBtnClick);
+scaleUpBtn.addEventListener('click', onScaleUpBtnClick);
+
+// ВАЛИДАЦИЯ ХЕШТЭГОВ
+var MAX_HASHTAG_AMOUNT = 5;
+var VALID_SYMBOL = /^[#A-Za-zА-ЯЁа-яё0-9]+/gi;
+var hashtagInput = uploadForm.querySelector('.text__hashtags');
+
+
+// пушим все ошибки в один массив, без повторений
+var addErrorMessage = function (message, messageArray) {
+  if (messageArray.indexOf(message) === -1) {
+    messageArray.push(message);
+  }
+};
+
+// цикл, который будет проверять каждый хэштег на соотвествие
+// если встречается ошибка -> setCustomValidity - выводим сообщение об ошибке
+var createErrorMessages = function (hashtagsArray) {
+  var errorMessages = [];
+
+  if (hashtagsArray.length > MAX_HASHTAG_AMOUNT) {
+    hashtagInput.setCustomValidity(addErrorMessage('Не больше ' + MAX_HASHTAG_AMOUNT + ' хэштегов', errorMessages));
+  }
+
+  for (var i = 0; i < hashtagsArray.length; i++) {
+    var hashtag = hashtagsArray[i];
+
+    if (!hashtag.startsWith('#')) {
+      hashtagInput.setCustomValidity(addErrorMessage('Хэштег должен начинаться с символа #', errorMessages));
+    } else if (!hashtag.match(VALID_SYMBOL)) {
+      hashtagInput.setCustomValidity(addErrorMessage('Хэштег может содержать только буквы и цифры', errorMessages));
+    } else if (hashtag.length === 1) {
+      hashtagInput.setCustomValidity(addErrorMessage('Хэштег не может быть пустым', errorMessages));
+    } else if (hashtag.length > 20) {
+      hashtagInput.setCustomValidity(addErrorMessage('Не больше 20 символов в хэштеге', errorMessages));
+    }
+  }
+
+  return errorMessages;
+};
+
+var onValidate = function () {
+  var hashtags = hashtagInput.value.toLowerCase().split(' ');
+  var errorMessages = createErrorMessages(hashtags);
+
+  if (errorMessages.length !== 0) {
+    hashtagInput.setCustomValidity(errorMessages.join('. \n'));
+    hashtagInput.style.border = '2px solid red';
+  } else {
+    hashtagInput.setCustomValidity('');
+    hashtagInput.style.border = '';
+  }
+};
+hashtagInput.addEventListener('input', onValidate);
