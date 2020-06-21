@@ -30,6 +30,7 @@ var bigPicture = document.querySelector('.big-picture');
 var bigPictureImg = bigPicture.querySelector('.big-picture__img');
 var commentsList = bigPicture.querySelector('.social__comments');
 var commentTemplate = commentsList.querySelector('.social__comment');
+var bigPictureCancelBtn = bigPicture.querySelector('.big-picture__cancel');
 
 // returns random number between min (incl) and max (exclud)
 var getRandomValue = function (min, max) {
@@ -88,7 +89,6 @@ fillFragment(posts);
 similarPicturesElement.appendChild(fragment);
 
 // ПОЛНОЭКРАННЫЙ ПОКАЗ ФОТО
-// bigPicture.classList.remove('hidden');
 
 var renderComment = function (comment) {
   var commentElement = commentTemplate.cloneNode(true);
@@ -122,11 +122,59 @@ var renderBigPicture = function (post) {
   var newComment = fillCommentFragment(post.comments);
   showComments(newComment);
 };
-renderBigPicture(posts[0]);
+
+var pictureImage = document .querySelectorAll('.picture__img');
+
+var showPicture = function (index) {
+  bigPicture.classList.remove('hidden');
+  renderBigPicture(posts[index]);
+  document.querySelector('body').classList.add('modal-open');
+};
+
+var closePicture = function () {
+  bigPicture.classList.add('hidden');
+  document.querySelector('body').classList.remove('modal-open');
+};
+
+var onPictureCloseBtnClick = function () {
+  closePicture();
+  bigPictureCancelBtn.removeEventListener('click', onPictureCloseBtnClick);
+};
+var onPictureEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEY) {
+    closePicture();
+    document.removeEventListener('keydown', onPictureEscPress);
+  }
+};
+
+// click on targeted picture
+var onPictureClick = function (evt) {
+  for (var i = 0; i < pictureImage.length; i++) {
+    if (evt.target === pictureImage[i]) {
+      showPicture(i);
+    }
+  }
+  bigPictureCancelBtn.addEventListener('click', onPictureCloseBtnClick);
+  document.addEventListener('keydown', onPictureEscPress);
+};
+// clicking Enter btn on targeted picture
+var onPictureEnterPress = function (evt) {
+  if (evt.keyCode === ENTER_KEY) {
+    for (var i = 0; i < pictureImage.length; i++) {
+      if (evt.target === pictureImage[i]) {
+        showPicture(i);
+      }
+    }
+    bigPictureCancelBtn.addEventListener('click', onPictureCloseBtnClick);
+    document.addEventListener('keydown', onPictureEscPress);
+  }
+};
+
+similarPicturesElement.addEventListener('click', onPictureClick);
+similarPicturesElement.addEventListener('keydown', onPictureEnterPress);
 
 document.querySelector('.social__comment-count').classList.add('hidden');
 document.querySelector('.comments-loader').classList.add('hidden');
-document.querySelector('body').classList.add('modal-open');
 
 // ПОПАП С ЗАГРУЗКОЙ ФОТО И ЕГО РЕДАКТИРОВАНИЕМ
 var ESC_KEY = 27;
@@ -138,7 +186,7 @@ var photoForm = uploadForm.querySelector('.img-upload__overlay');
 var photoFormCancel = uploadForm.querySelector('.img-upload__cancel');
 
 var onFormEscPress = function (evt) {
-  if (evt.keyCode === ESC_KEY) {
+  if (evt.keyCode === ESC_KEY && hashtagInput !== document.activeElement && descriptionInput !== document.activeElement) {
     closeForm();
   }
 };
@@ -161,13 +209,6 @@ uploadFile.addEventListener('change', function () {
 
 photoFormCancel.addEventListener('click', function () {
   closeForm();
-});
-
-// ??????????
-photoFormCancel.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === ENTER_KEY) {
-    closeForm();
-  }
 });
 
 // ЭФФЕКТЫ
@@ -221,6 +262,7 @@ scaleUpBtn.addEventListener('click', onScaleUpBtnClick);
 var MAX_HASHTAG_AMOUNT = 5;
 var VALID_SYMBOL = /^[#A-Za-zА-ЯЁа-яё0-9]+/gi;
 var hashtagInput = uploadForm.querySelector('.text__hashtags');
+var descriptionInput = uploadForm.querySelector('.text__description');
 
 
 // пушим все ошибки в один массив, без повторений
@@ -269,3 +311,7 @@ var onValidate = function () {
   }
 };
 hashtagInput.addEventListener('input', onValidate);
+
+// КОММЕНТЫ
+// если фокус находится в поле ввода комментария, нажатие на Esc не должно приводить к
+// закрытию формы редактирования изображения
