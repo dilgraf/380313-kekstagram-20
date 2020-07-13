@@ -1,11 +1,71 @@
 'use strict';
 // МОДУЛЬ ДЛЯ ОТРИСОВКИ МИНИАТЮРЫ
 (function () {
-  var uploadForm = window.form.uploadForm;
+  var EFFECT_MIN = 0;
+  var EFFECT_MAX = 100;
+  var CHROME_MAX = 1;
+  var SEPIA_MAX = 1;
+  var MARVIN_MAX = 100;
+  var PHOBOS_MAX = 3;
+  var HEAT_MIN = 1;
+  var HEAT_MAX = 3;
+
   var photoForm = window.form.photoForm;
+  var imagePreview = window.scale.imagePreview;
+
+  var effectLevel = photoForm.querySelector('.effect-level');
+  var effectLevelValue = effectLevel.querySelector('.effect-level__value');
+  var effectLevelLine = effectLevel.querySelector('.effect-level__line');
+  var effectLevelPin = effectLevelLine.querySelector('.effect-level__pin');
+  var effectLevelDepth = effectLevelLine.querySelector('.effect-level__depth');
+  var effectsList = photoForm.querySelector('.effects__list');
+  var effectRadioButton = effectsList.querySelectorAll('.effects__radio');
+  // var effectRadioButtons = effectsList.querySelectorAll('.effects__radio');
+
+  // По умолчанию должен быть выбран эффект «ОРИГИНАЛ».
+
   // ЭФФЕКТЫ
-  var effectLevel = uploadForm.querySelector('.effect-level');
-  var effectLevelPin = effectLevel.querySelector('.effect-level__pin');
+
+  // Для эффекта «ОРИГИНАЛ» стили filter удаляются
+  var setDefaultFilter = function () {
+    imagePreview.className = imagePreview.className.replace(/\beffects__preview--.*?\b/, '');
+
+    imagePreview.style.filter = '';
+    effectLevelPin.style.left = EFFECT_MAX + '%';
+    effectLevelDepth.style.width = EFFECT_MAX + '%';
+    effectLevelValue.value = EFFECT_MAX;
+  };
+
+  var changeFilter = function (evt) {
+    var targetFilter = evt.target.value;
+    effectLevel.classList.remove('hidden');
+    setDefaultFilter();
+    imagePreview.classList.add('effects__preview--' + targetFilter);
+    if (targetFilter === 'none') {
+      effectLevel.classList.add('hidden');
+      imagePreview.style.filter = '';
+    }
+  };
+
+  effectsList.addEventListener('change', changeFilter); // or effectRadioButtons.addEventListener ??
+
+  var getEffectValue = function (effectMin, effectMax) {
+    return ((effectLevelValue.value * (effectMax - effectMin) / 100) + effectMin);
+  };
+
+  var applyStyles = function () {
+    if (effectRadioButton[1].checked) {
+      imagePreview.style.filter = 'grayscale(' + getEffectValue(EFFECT_MIN, CHROME_MAX) + ')';
+    } else if (effectRadioButton[2].checked) {
+      imagePreview.style.filter = 'sepia(' + getEffectValue(EFFECT_MIN, SEPIA_MAX) + ')';
+    } else if (effectRadioButton[3].checked) {
+      imagePreview.style.filter = 'invert(' + getEffectValue(EFFECT_MIN, MARVIN_MAX) + '%)';
+    } else if (effectRadioButton[4].checked) {
+      imagePreview.style.filter = 'blur(' + getEffectValue(EFFECT_MIN, PHOBOS_MAX) + 'px)';
+    } else if (effectRadioButton[5].checked) {
+      imagePreview.style.filter = 'brightness(' + getEffectValue(HEAT_MIN, HEAT_MAX) + ')';
+    }
+  };
 
   var onEffectLevelPinMouseUp = function (upEvt) {
     upEvt.preventDefault();
@@ -14,39 +74,57 @@
 
   effectLevelPin.addEventListener('mouseup', onEffectLevelPinMouseUp);
 
-  // МАСШТАБИРОВАНИЕ ИЗОБРАЖЕНИЯ
-  var MIN_SCALE = 25;
-  var MAX_SCALE = 100;
-  var SCALE_STEP = 25;
-  var scaleField = photoForm.querySelector('.img-upload__scale');
-  var scaleDownBtn = scaleField.querySelector('.scale__control--smaller');
-  var scaleUpBtn = scaleField.querySelector('.scale__control--bigger');
-  var scaleValue = scaleField.querySelector('.scale__control--value');
-  var imagePreview = photoForm.querySelector('.img-upload__preview');
+  // ИЗМЕНЕНИЕ НАСЫЩЕННОСТИ ЭФФЕКТА
+  effectLevelPin.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
 
-  // - Значение должно изменяться с шагом в 25. Например, если значение поля установлено в 50%, после нажатия на «+»,
-  // значение должно стать равным 75%. Максимальное значение — 100%, минимальное — 25%. Значение по умолчанию — 100%;
-  // - При изменении значения поля .scale__control--value изображению внутри .img-upload__preview должен добавляться соответствующий стиль CSS,
-  // который с помощью трансформации scale задаёт масштаб. Например, если в поле стоит значение 75%, то в стиле изображения должно быть написано transform: scale(0.75).
-  var onScaleDownBtnClick = function () {
-    var scale = parseInt(scaleValue.value, 10);
+    var startCoords = {
+      x: evt.clientX
+    };
 
-    var newScale = scale - SCALE_STEP >= MIN_SCALE ? newScale = scale - SCALE_STEP : MIN_SCALE;
+    var onMouseMove = function (moveEvt) {
+      // moveEvt.preventDefault();
 
-    scaleValue.value = newScale + '%';
-    imagePreview.style.transform = 'scale(' + newScale / 100 + ')';
-  };
+      var shift = {
+        x: startCoords.x - moveEvt.clientX
+      };
 
-  var onScaleUpBtnClick = function () {
-    var scale = parseInt(scaleValue.value, 10);
+      startCoords = {
+        x: moveEvt.clientX
+      };
 
-    var newScale = scale + SCALE_STEP <= MAX_SCALE ? newScale = scale + SCALE_STEP : MAX_SCALE;
+      var pinPositionX = effectLevelPin.offsetLeft - shift.x;
 
-    scaleValue.value = newScale + '%';
-    imagePreview.style.transform = 'scale(' + newScale / 100 + ')';
-  };
+      var minEffectValue = effectLevelLine.offsetLeft - effectLevelPin.offsetWidth;
+      if (pinPositionX < minEffectValue) {
+        pinPositionX = minEffectValue;
+      }
 
-  // - При нажатии на кнопки .scale__control--smaller и .scale__control--bigger должно изменяться значение поля .scale__control--value;
-  scaleDownBtn.addEventListener('click', onScaleDownBtnClick);
-  scaleUpBtn.addEventListener('click', onScaleUpBtnClick);
+      var maxEffectValue = effectLevelLine.offsetLeft + effectLevelLine.offsetWidth - effectLevelPin.offsetWidth;
+      if (pinPositionX > maxEffectValue) {
+        pinPositionX = maxEffectValue;
+      }
+
+      if (pinPositionX > 0 || pinPositionX < effectLevelLine.offsetWidth) {
+        effectLevelPin.style.left = pinPositionX + 'px';
+
+        var effectValuePercentage = Math.floor((pinPositionX / effectLevelLine.offsetWidth) * 100);
+        effectLevelValue.value = effectValuePercentage;
+
+        effectLevelDepth.style.width = effectValuePercentage + '%';
+
+        applyStyles();
+      }
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
 })();
