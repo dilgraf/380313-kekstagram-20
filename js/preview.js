@@ -3,7 +3,7 @@
 (function () {
   var ESC_KEY = window.util.ESC_KEY;
   var ENTER_KEY = window.util.ENTER_KEY;
-  var posts = window.data.posts;
+  // var posts = window.data.posts;
   var similarPicturesElement = window.gallery.similarPicturesElement;
 
   var bigPicture = document.querySelector('.big-picture');
@@ -45,12 +45,21 @@
     showComments(newComment);
   };
 
-  var pictureImage = document .querySelectorAll('.picture__img');
-
-  var showPicture = function (index) {
+  var showPicture = function (evt) {
     bigPicture.classList.remove('hidden');
-    renderBigPicture(posts[index]);
     document.querySelector('body').classList.add('modal-open');
+
+    var target = evt.target.closest('.picture');
+    if (!target) {
+      return;
+    }
+    if (!similarPicturesElement.contains(target)) {
+      return;
+    }
+
+    var targetIndex = target.dataset.id;
+    var userPosts = window.gallery.userPosts;
+    renderBigPicture(userPosts[targetIndex]);
   };
 
   var closePicture = function () {
@@ -71,22 +80,18 @@
 
   // click on targeted picture
   var onPictureClick = function (evt) {
-    for (var i = 0; i < pictureImage.length; i++) {
-      if (evt.target === pictureImage[i]) {
-        showPicture(i);
-      }
+    var targetImgPicture = evt.target;
+    if (targetImgPicture.classList.contains('picture__img')) {
+      showPicture(evt);
+      bigPictureCancelBtn.addEventListener('click', onPictureCloseBtnClick);
+      document.addEventListener('keydown', onPictureEscPress);
     }
-    bigPictureCancelBtn.addEventListener('click', onPictureCloseBtnClick);
-    document.addEventListener('keydown', onPictureEscPress);
   };
   // clicking Enter btn on targeted picture
   var onPictureEnterPress = function (evt) {
-    if (evt.keyCode === ENTER_KEY) {
-      for (var i = 0; i < pictureImage.length; i++) {
-        if (evt.target === pictureImage[i]) {
-          showPicture(i);
-        }
-      }
+    if (evt.keyCode === ENTER_KEY && evt.target.classList.contains('picture')) {
+      evt.preventDefault();
+      showPicture(evt);
       bigPictureCancelBtn.addEventListener('click', onPictureCloseBtnClick);
       document.addEventListener('keydown', onPictureEscPress);
     }
