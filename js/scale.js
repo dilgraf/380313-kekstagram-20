@@ -6,12 +6,11 @@
   var MAX_SCALE = 100;
   var SCALE_STEP = 25;
 
-  var photoForm = window.form.photoForm;
-  var scaleField = photoForm.querySelector('.img-upload__scale');
+  var scaleField = window.form.scaleField;
+  var scaleValue = window.form.scaleValue;
+  var imagePreview = window.form.imagePreview;
   var scaleDownBtn = scaleField.querySelector('.scale__control--smaller');
   var scaleUpBtn = scaleField.querySelector('.scale__control--bigger');
-  var scaleValue = scaleField.querySelector('.scale__control--value');
-  var imagePreview = photoForm.querySelector('.img-upload__preview');
 
   // - Значение должно изменяться с шагом в 25. Например, если значение поля установлено в 50%, после нажатия на «+»,
   // значение должно стать равным 75%. Максимальное значение — 100%, минимальное — 25%. Значение по умолчанию — 100%;
