@@ -11,9 +11,9 @@
   var HEAT_MAX = 3;
 
   var photoForm = window.form.photoForm;
-  var imagePreview = window.scale.imagePreview;
+  var imagePreview = window.form.imagePreview;
+  var effectLevel = window.form.effectLevel;
 
-  var effectLevel = photoForm.querySelector('.effect-level');
   var effectLevelValue = effectLevel.querySelector('.effect-level__value');
   var effectLevelLine = effectLevel.querySelector('.effect-level__line');
   var effectLevelPin = effectLevelLine.querySelector('.effect-level__pin');
@@ -28,7 +28,7 @@
 
   // Для эффекта «ОРИГИНАЛ» стили filter удаляются
   var setDefaultFilter = function () {
-    imagePreview.className = imagePreview.className.replace(/\beffects__preview--.*?\b/, '');
+    imagePreview.className = imagePreview.className.replace(/\beffects__preview--.*\b/, '');
 
     imagePreview.style.filter = '';
     effectLevelPin.style.left = EFFECT_MAX + '%';

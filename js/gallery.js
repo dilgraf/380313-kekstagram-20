@@ -1,6 +1,7 @@
 'use strict';
 // МОДУЛЬ, КОТОРЫЙ РАБОТАЕТ С ГАЛЕРЕЕЙ ИЗОБРАЖЕНИЙ
 (function () {
+  var load = window.backend.load;
   // Отрисуйте сгенерированные DOM-элементы в блок .pictures
   var similarPicturesElement = document.querySelector('.pictures');
   // Найдем шаблон, который будем копировать
@@ -43,7 +44,7 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-  window.backend(onSuccess, onError);
+  load(onSuccess, onError);
 
   window.gallery = {
     similarPicturesElement: similarPicturesElement
