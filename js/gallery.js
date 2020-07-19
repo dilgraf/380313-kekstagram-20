@@ -19,17 +19,12 @@
     return pictureElement;
   };
 
-  var onSuccess = function (posts) {
+  var createPicturesList = function (posts) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < posts.length; i++) {
       fragment.appendChild(renderPicture(posts[i], i));
     }
     similarPicturesElement.appendChild(fragment);
-    var userPosts = posts;
-
-    window.gallery = {
-      userPosts: userPosts
-    };
   };
 
   var onError = function (errorMessage) {
@@ -44,9 +39,17 @@
     document.body.insertAdjacentElement('afterbegin', node);
   };
 
-  load(onSuccess, onError);
+  load(function (posts) {
+    createPicturesList(posts);
+    var userPosts = posts;
+
+    window.gallery = {
+      userPosts: userPosts
+    };
+  }, onError);
 
   window.gallery = {
-    similarPicturesElement: similarPicturesElement
+    similarPicturesElement: similarPicturesElement,
+    createPicturesList: createPicturesList
   };
 })();
