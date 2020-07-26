@@ -4,8 +4,9 @@
   var ESC_KEY = window.util.ESC_KEY;
 
   var upload = window.backend.upload;
+  var onSuccess = window.message.onSuccess;
+  var onError = window.message.onError;
 
-  var main = document.querySelector('main');
   var uploadForm = document.querySelector('.img-upload__form');
   var uploadFile = uploadForm.querySelector('#upload-file');
   var photoForm = uploadForm.querySelector('.img-upload__overlay');
@@ -52,46 +53,43 @@
     closeForm();
   });
 
-  var createMessage = function (templateId, state) {
-    var messageTemplate = document.querySelector(templateId).content.querySelector(state);
-    var message = messageTemplate.cloneNode(true);
-    var messageBtn = message.querySelector(state + '__button');
-    var fragment = document.createDocumentFragment();
+  // var createMessage = function (templateId, state) {
+  //   var messageTemplate = document.querySelector(templateId).content.querySelector(state);
+  //   var message = messageTemplate.cloneNode(true);
+  //   var messageBtn = message.querySelector(state + '__button');
+  //   var fragment = document.createDocumentFragment();
 
-    fragment.appendChild(message);
-    main.appendChild(fragment);
-    var messagePopup = main.querySelector(state);
+  //   fragment.appendChild(message);
+  //   main.appendChild(fragment);
+  //   var messagePopup = main.querySelector(state);
 
-    messageBtn.addEventListener('click', function () {
-      main.removeChild(messagePopup);
-    });
+  //   messageBtn.addEventListener('click', function () {
+  //     main.removeChild(messagePopup);
+  //   });
 
-    document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === ESC_KEY) {
-        main.removeChild(messagePopup);
-      }
-    });
+  //   document.addEventListener('keydown', function (evt) {
+  //     if (evt.keyCode === ESC_KEY) {
+  //       main.removeChild(messagePopup);
+  //     }
+  //   });
 
-    document.addEventListener('click', function (evt) {
-      if (evt.target !== document.querySelector(state + '__inner')) {
-        main.removeChild(messagePopup);
-      }
-    });
-  };
+  //   document.addEventListener('click', function (evt) {
+  //     if (evt.target !== document.querySelector(state + '__inner')) {
+  //       main.removeChild(messagePopup);
+  //     }
+  //   });
+  // };
 
-  var onSuccess = function () {
-    // При успешной отправке форма закрывается
-    // Все данные и фильтры приходят в исх сост
-    // Показ сообщения об успешной отправке (в #success внутри template --> main)
-    createMessage('#success', '.success');
-  };
+  // var onSuccess = function () {
+  //   createMessage('#success', '.success');
+  // };
 
-  var onError = function () {
-    // Если данные, введённые в форму, не соответствуют ограничениям - форму невозможно отправить
-    // при попытке отправить - неверно заполненные поля подсвечиваются красной рамкой
-    // Показ сообщения об ошибке (в #error внутри template --> main)
-    createMessage('#error', '.error');
-  };
+  // var onError = function () {
+  //   // Если данные, введённые в форму, не соответствуют ограничениям - форму невозможно отправить
+  //   // при попытке отправить - неверно заполненные поля подсвечиваются красной рамкой
+  //   // Показ сообщения об ошибке (в #error внутри template --> main)
+  //   createMessage('#error', '.error');
+  // };
 
   uploadForm.addEventListener('submit', function (evt) {
     upload(new FormData(uploadForm), onSuccess, onError);
@@ -100,7 +98,6 @@
   });
 
   window.form = {
-    uploadForm: uploadForm,
     photoForm: photoForm,
     hashtagInput: hashtagInput,
     scaleField: scaleField,

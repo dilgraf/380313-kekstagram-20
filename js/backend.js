@@ -4,25 +4,37 @@
   var URL_LOAD = 'https://javascript.pages.academy/kekstagram/data';
   var URL_UPLOAD = 'https://javascript.pages.academy/kekstagram';
 
+  var StatusCode = {
+    OK: 200,
+    BAD_REQUEST: 400,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    SERVER_ERROR: 500
+  };
+
   var getServerResponse = function (xhr, onSuccess, onError) {
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
       switch (xhr.status) {
-        case 200:
+        case StatusCode.OK:
           onSuccess(xhr.response);
           break;
 
-        case 400:
-          onError('Неверный запрос');
+        case StatusCode.BAD_REQUEST:
+          onError('Сервер не смог обработать запрс');
           break;
 
-        case 401:
-          onError('Пользователь не авторизован');
+        case StatusCode.FORBIDDEN:
+          onError('Доступ запрещен');
           break;
 
-        case 404:
-          onError('Ничего не найдено');
+        case StatusCode.NOT_FOUND:
+          onError('Запрашиваемая страница не найдена, проверьте правильность написания адреса');
+          break;
+
+        case StatusCode.SERVER_ERROR:
+          onError('Внутренняя ошибка сервера');
           break;
 
         default:

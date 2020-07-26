@@ -20,13 +20,7 @@
   var effectLevelDepth = effectLevelLine.querySelector('.effect-level__depth');
   var effectsList = photoForm.querySelector('.effects__list');
   var effectRadioButton = effectsList.querySelectorAll('.effects__radio');
-  // var effectRadioButtons = effectsList.querySelectorAll('.effects__radio');
 
-  // По умолчанию должен быть выбран эффект «ОРИГИНАЛ».
-
-  // ЭФФЕКТЫ
-
-  // Для эффекта «ОРИГИНАЛ» стили filter удаляются
   var setDefaultFilter = function () {
     imagePreview.className = imagePreview.className.replace(/\beffects__preview--.*\b/, '');
 
@@ -36,7 +30,7 @@
     effectLevelValue.value = EFFECT_MAX;
   };
 
-  var changeFilter = function (evt) {
+  var onFilterChange = function (evt) {
     var targetFilter = evt.target.value;
     effectLevel.classList.remove('hidden');
     setDefaultFilter();
@@ -47,7 +41,7 @@
     }
   };
 
-  effectsList.addEventListener('change', changeFilter); // or effectRadioButtons.addEventListener ??
+  effectsList.addEventListener('change', onFilterChange);
 
   var getEffectValue = function (effectMin, effectMax) {
     return ((effectLevelValue.value * (effectMax - effectMin) / 100) + effectMin);

@@ -2,12 +2,12 @@
 // МОДУЛЬ, КОТОРЫЙ РАБОТАЕТ С ГАЛЕРЕЕЙ ИЗОБРАЖЕНИЙ
 (function () {
   var load = window.backend.load;
+  var onError = window.message.onError;
   // Отрисуйте сгенерированные DOM-элементы в блок .pictures
   var similarPicturesElement = document.querySelector('.pictures');
-  // Найдем шаблон, который будем копировать
   var similarPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
+  // var userPosts = [];
 
-  // отрисуем шаблон в элемент
   var renderPicture = function (post, id) {
     var pictureElement = similarPictureTemplate.cloneNode(true);
 
@@ -27,24 +27,13 @@
     similarPicturesElement.appendChild(fragment);
   };
 
-  var onError = function (errorMessage) {
-    var node = document.createElement('div');
-    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '18px';
-
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
-  };
-
   load(function (posts) {
     createPicturesList(posts);
     var userPosts = posts;
-
+    var filteredPosts = userPosts.slice();
     window.gallery = {
-      userPosts: userPosts
+      userPosts: userPosts,
+      filteredPosts: filteredPosts
     };
   }, onError);
 

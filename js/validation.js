@@ -40,7 +40,7 @@
     return errorMessages;
   };
 
-  var onValidate = function () {
+  var onHashtagInput = function () {
     var hashtags = hashtagInput.value.toLowerCase().split(' ');
     var errorMessages = createErrorMessages(hashtags);
 
@@ -52,9 +52,5 @@
       hashtagInput.style.border = '';
     }
   };
-  hashtagInput.addEventListener('input', onValidate);
-
-  window.validation = {
-    hashtagInput: hashtagInput
-  };
+  hashtagInput.addEventListener('input', onHashtagInput);
 })();
