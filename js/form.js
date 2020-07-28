@@ -36,6 +36,7 @@
   var openForm = function () {
     photoForm.classList.remove('hidden');
     scaleValue.value = '100%';
+    effectLevel.classList.add('hidden');
     document.addEventListener('keydown', onFormEscPress);
   };
 
@@ -52,44 +53,6 @@
   photoFormCancel.addEventListener('click', function () {
     closeForm();
   });
-
-  // var createMessage = function (templateId, state) {
-  //   var messageTemplate = document.querySelector(templateId).content.querySelector(state);
-  //   var message = messageTemplate.cloneNode(true);
-  //   var messageBtn = message.querySelector(state + '__button');
-  //   var fragment = document.createDocumentFragment();
-
-  //   fragment.appendChild(message);
-  //   main.appendChild(fragment);
-  //   var messagePopup = main.querySelector(state);
-
-  //   messageBtn.addEventListener('click', function () {
-  //     main.removeChild(messagePopup);
-  //   });
-
-  //   document.addEventListener('keydown', function (evt) {
-  //     if (evt.keyCode === ESC_KEY) {
-  //       main.removeChild(messagePopup);
-  //     }
-  //   });
-
-  //   document.addEventListener('click', function (evt) {
-  //     if (evt.target !== document.querySelector(state + '__inner')) {
-  //       main.removeChild(messagePopup);
-  //     }
-  //   });
-  // };
-
-  // var onSuccess = function () {
-  //   createMessage('#success', '.success');
-  // };
-
-  // var onError = function () {
-  //   // Если данные, введённые в форму, не соответствуют ограничениям - форму невозможно отправить
-  //   // при попытке отправить - неверно заполненные поля подсвечиваются красной рамкой
-  //   // Показ сообщения об ошибке (в #error внутри template --> main)
-  //   createMessage('#error', '.error');
-  // };
 
   uploadForm.addEventListener('submit', function (evt) {
     upload(new FormData(uploadForm), onSuccess, onError);

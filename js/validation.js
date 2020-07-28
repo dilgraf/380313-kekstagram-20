@@ -4,6 +4,8 @@
   // ВАЛИДАЦИЯ ХЕШТЭГОВ
   var MAX_HASHTAG_AMOUNT = 5;
   var VALID_SYMBOL = /^[#A-Za-zА-ЯЁа-яё0-9]+/gi;
+  var EMPTY_HASHTAG_LENGTH = 1;
+  var MAX_HASHTAG_LENGTH = 20;
 
   var hashtagInput = window.form.hashtagInput;
 
@@ -30,9 +32,9 @@
         hashtagInput.setCustomValidity(addErrorMessage('Хэштег должен начинаться с символа #', errorMessages));
       } else if (!hashtag.match(VALID_SYMBOL)) {
         hashtagInput.setCustomValidity(addErrorMessage('Хэштег может содержать только буквы и цифры', errorMessages));
-      } else if (hashtag.length === 1) {
+      } else if (hashtag.length === EMPTY_HASHTAG_LENGTH) {
         hashtagInput.setCustomValidity(addErrorMessage('Хэштег не может быть пустым', errorMessages));
-      } else if (hashtag.length > 20) {
+      } else if (hashtag.length > MAX_HASHTAG_LENGTH) {
         hashtagInput.setCustomValidity(addErrorMessage('Не больше 20 символов в хэштеге', errorMessages));
       }
     }
